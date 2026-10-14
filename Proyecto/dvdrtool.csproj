@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>dvdrtool</AssemblyName>
+    <RootNamespace>CdExtraStudio</RootNamespace>
+    <Product>dvdrtool</Product>
+    <Title>dvdrtool</Title>
+    <Description>Grabador portable de Audio CD, Datos CD/DVD, CD Extra y Blu-ray para Windows.</Description>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\dvdrtool.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Version>3.1.4</Version>
+    <AssemblyVersion>3.1.4.0</AssemblyVersion>
+    <FileVersion>3.1.4.0</FileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\dvdrtool.ico" />
+    <Resource Include="Assets\dvdrtool.ico" />
+  </ItemGroup>
+</Project>

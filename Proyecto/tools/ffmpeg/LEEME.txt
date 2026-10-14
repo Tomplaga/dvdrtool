@@ -1,0 +1,3 @@
+Opcional: coloca aquí ffmpeg.exe para conversión de audio ampliada.
+Ruta sugerida:
+- tools\ffmpeg\ffmpeg.exe

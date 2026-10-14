@@ -1,0 +1,906 @@
+<Window x:Class="CdExtraStudio.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="dvdrtool"
+        Width="1120" Height="720" MinWidth="820" MinHeight="520"
+        ResizeMode="CanResizeWithGrip" SizeToContent="Manual" UseLayoutRounding="True" SnapsToDevicePixels="True"
+        Icon="Assets/dvdrtool.ico"
+        WindowStartupLocation="CenterScreen">
+    <Grid Background="{StaticResource BgBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="214"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Barra lateral -->
+        <Border Grid.Column="0" Background="{StaticResource SidebarGradientBrush}">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="22"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="48" Height="48" CornerRadius="14" Background="#0D2037" BorderBrush="#2C5A86" BorderThickness="1">
+                            <Image Source="Assets/dvdrtool.ico" Width="42" Height="42" Stretch="Uniform"/>
+                        </Border>
+                        <StackPanel Margin="10,2,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="dvdrtool" Foreground="White" FontWeight="Bold" FontSize="18"/>
+                            <TextBlock Text="grabación óptica" Foreground="#94A3B8" FontSize="12"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2">
+                    <TextBlock Text="NAVEGACIÓN" Foreground="#64748B" FontSize="10" FontWeight="SemiBold" Margin="12,0,0,7"/>
+                    <Button x:Name="NavHomeButton" Style="{StaticResource NavButton}" Tag="0" Click="Nav_Click" Content="⌂   Inicio"/>
+                    <Button x:Name="NavAudioButton" Style="{StaticResource NavButton}" Tag="1" Click="Nav_Click" Content="♫   Grabar Audio"/>
+                    <Button x:Name="NavDataButton" Style="{StaticResource NavButton}" Tag="2" Click="Nav_Click" Content="▤   Datos CD/DVD"/>
+                    <Button x:Name="NavCreateButton" Style="{StaticResource NavButton}" Tag="3" Click="Nav_Click" Content="✦   Crear CD Extra"/>
+                    <Button x:Name="NavBluRayButton" Style="{StaticResource NavButton}" Tag="4" Click="Nav_Click" Content="▣   Películas Blu-ray"/>
+                    <Button x:Name="NavOptionsButton" Style="{StaticResource NavButton}" Tag="5" Click="Nav_Click" Content="⚙   Opciones"/>
+                    <Button x:Name="NavLogButton" Style="{StaticResource NavButton}" Tag="6" Click="Nav_Click" Content="≡   Registro"/>
+                </StackPanel>
+
+            </Grid>
+        </Border>
+
+        <!-- Contenido principal -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="78"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <!-- Controles de lectura heredados: se conservan ocultos para no romper funciones internas. -->
+            <DataGrid x:Name="TracksGrid" Visibility="Collapsed"/>
+            <DataGrid x:Name="FilesGrid" Visibility="Collapsed"/>
+
+            <!-- Cabecera -->
+            <Border Grid.Row="0" Background="#FBFDFF" BorderBrush="#D6E0EC" BorderThickness="0,0,0,1" Padding="22,11">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                        <TextBlock x:Name="PageTitle" Text="Inicio" FontSize="22" FontWeight="Bold"/>
+                        <TextBlock x:Name="PageSubtitle" Text="Audio CD · Datos · CD Extra con cdrtools" Foreground="{StaticResource MutedBrush}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                        <!-- Controles conservados de forma invisible para no alterar la lógica de lectura.
+                             La unidad se detecta y actualiza automáticamente. -->
+                        <ComboBox x:Name="DriveCombo" Width="210" MinWidth="150" SelectionChanged="DriveCombo_SelectionChanged" Margin="0,0,7,0"/>
+                        <Button Style="{StaticResource SecondaryButton}" Margin="0" Click="Refresh_Click" Content="↻ Actualizar"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <TabControl x:Name="MainTabs" Grid.Row="1" SelectedIndex="0" Background="Transparent" BorderThickness="0">
+                <TabControl.Template>
+                    <ControlTemplate TargetType="TabControl">
+                        <ContentPresenter Content="{TemplateBinding SelectedContent}" Margin="0"/>
+                    </ControlTemplate>
+                </TabControl.Template>
+
+                <!-- Inicio -->
+                <TabItem>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="20">
+                            <Border CornerRadius="18" Padding="24" Margin="0,0,0,16"
+                                    Background="{StaticResource HeroGradientBrush}"
+                                    BorderBrush="#CFE1F8" BorderThickness="1">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="22" ShadowDepth="3" Opacity="0.10" Color="#214A70"/>
+                                </Border.Effect>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="110"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <Border Background="#DBEAFE" CornerRadius="18" Padding="9,4" HorizontalAlignment="Left">
+                                            <TextBlock Text="DVDRTOOL · V3.1.4" Foreground="#0B5FD7" FontWeight="Bold" FontSize="10"/>
+                                        </Border>
+                                        <TextBlock Text="Tu centro de grabación de discos" Foreground="#102033" FontSize="26" FontWeight="Bold" Margin="0,11,0,0"/>
+                                        <TextBlock Text="Audio CD, Datos CD/DVD, CD Extra y grabación de imágenes Blu-ray Video." Foreground="#475569" FontSize="13" TextWrapping="Wrap" MaxWidth="650" Margin="0,7,0,14"/>
+                                        <WrapPanel>
+                                            <Button Style="{StaticResource PrimaryButton}" Tag="3" Click="Nav_Click" Content="Crear CD Extra"/>
+                                            <Button Style="{StaticResource SecondaryButton}" Tag="1" Click="Nav_Click" Content="Grabar Audio"/>
+                                            <Button Style="{StaticResource SecondaryButton}" Tag="4" Click="Nav_Click" Content="Blu-ray Video"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                    <Image Grid.Column="1" Source="Assets/dvdrtool.ico" Width="106" Height="106" Opacity="0.96" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,7,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Unidad óptica" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                        <TextBlock x:Name="HomeDriveText" Text="—" FontSize="18" FontWeight="SemiBold" Margin="0,7,0,0" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock x:Name="HomeMediaText" Text="Sin información" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" Style="{StaticResource CardBorder}" Margin="7,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Pistas para Audio CD" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                        <TextBlock x:Name="HomeTracksText" Text="0" FontSize="24" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                                        <TextBlock Text="proyecto actual" Foreground="{StaticResource MutedBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2" Style="{StaticResource CardBorder}" Margin="7,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Archivos del proyecto" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                        <TextBlock x:Name="HomeFilesText" Text="0" FontSize="24" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                                        <TextBlock Text="sesión montada" Foreground="{StaticResource MutedBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Audio: grabación solo CD Audio -->
+                <TabItem>
+                    <Grid Margin="20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,10" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Text="Grabar solamente Audio CD" FontSize="18" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Crea un CD Audio tradicional (CD-DA), sin sesión de datos. Los formatos compatibles se convierten automáticamente antes de grabar." Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                    <StackPanel x:Name="AudioCdTextPanel">
+                                        <Grid Margin="0,12,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="12"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Artista (CD-TEXT)" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,0,0,4"/>
+                                                <TextBox x:Name="AudioOnlyArtistText" MaxLength="80" ToolTip="Opcional. Se graba como artista del disco mediante CD-TEXT."/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Nombre del disco (CD-TEXT)" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,0,0,4"/>
+                                                <TextBox x:Name="AudioOnlyAlbumText" MaxLength="80" ToolTip="Opcional. Se graba como título del disco mediante CD-TEXT."/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock Text="Opcional · CD-TEXT se mostrará solo en reproductores compatibles." Foreground="#64748B" FontSize="10" Margin="0,6,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="10" Padding="10,6" VerticalAlignment="Center">
+                                    <TextBlock Text="SOLO AUDIO" Foreground="#047857" FontWeight="SemiBold" FontSize="11"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" CornerRadius="12">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Pistas del CD Audio" FontWeight="SemiBold" FontSize="15"/>
+                                        <TextBlock x:Name="AudioOnlySummaryText" Text="0 pistas" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                    <WrapPanel Grid.Column="1">
+                                        <Button Style="{StaticResource PrimaryButton}" Click="AddBurnAudio_Click" Content="+ Agregar audio"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Click="RemoveAudioOnly_Click" Content="Quitar"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Click="ClearAudioOnly_Click" Content="Quitar todas las canciones"/>
+                                    </WrapPanel>
+                                </Grid>
+                                <ListBox x:Name="AudioOnlyList" Grid.Row="1" MinHeight="260" HorizontalContentAlignment="Stretch"/>
+                                <WrapPanel Grid.Row="2" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource SecondaryButton}" Click="MoveAudioOnlyUp_Click" Content="↑ Subir"/>
+                                    <Button Style="{StaticResource SecondaryButton}" Click="MoveAudioOnlyDown_Click" Content="↓ Bajar"/>
+                                </WrapPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,10,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="Se usará la grabadora detectada por cdrtools. El disco se cerrará como Audio CD al terminar." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                <Button x:Name="BurnAudioOnlyButton" Grid.Column="1" Style="{StaticResource PrimaryButton}" Height="46" MinWidth="190" Margin="0" Click="BurnAudioOnly_Click" Content="GRABAR SOLO AUDIO"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- Datos: grabación solo datos -->
+                <TabItem>
+                    <Grid Margin="20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,10" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Text="Grabar Datos en CD o DVD" FontSize="18" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Crea un disco de datos ISO9660/Joliet en CD o DVD, sin pistas de Audio CD. dvdrtool detecta el tipo de medio y usa el modo de escritura correcto automáticamente." Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="#EFF6FF" BorderBrush="#BFDBFE" BorderThickness="1" CornerRadius="10" Padding="10,6" VerticalAlignment="Center">
+                                    <TextBlock Text="CD / DVD DATOS" Foreground="#1D4ED8" FontWeight="SemiBold" FontSize="11"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="12" CornerRadius="12">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="180"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="Agregar en:" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" Margin="0,0,8,0"/>
+                                    <ComboBox x:Name="DataOnlyTargetCombo" Grid.Column="1" SelectedIndex="0" Margin="0,0,12,0"/>
+                                    <TextBlock Grid.Column="2" x:Name="DataOnlySummaryText" Text="0 archivo(s) · 0 carpeta(s) · 0 B" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <WrapPanel Grid.Column="3">
+                                        <Button Style="{StaticResource PrimaryButton}" Click="AddDataOnlyFiles_Click" Content="+ Archivos"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Click="AddDataOnlyFolder_Click" Content="+ Carpeta"/>
+                                    </WrapPanel>
+                                </Grid>
+
+                                <DataGrid x:Name="DataOnlyGrid" Grid.Row="1" IsReadOnly="True" SelectionMode="Single" AlternationCount="2" BorderThickness="0" MinHeight="250">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="220"/>
+                                        <DataGridTextColumn Header="Ruta en el disco" Binding="{Binding RelativePath}" Width="*"/>
+                                        <DataGridTextColumn Header="Tamaño" Binding="{Binding SizeText}" Width="120"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <WrapPanel Grid.Row="2" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource SecondaryButton}" Click="RemoveDataOnlyItem_Click" Content="Quitar seleccionado"/>
+                                    <Button Style="{StaticResource SecondaryButton}" Click="ClearDataOnly_Click" Content="Vaciar datos"/>
+                                    <Button Style="{StaticResource SecondaryButton}" Click="OpenDataProject_Click" Content="Abrir carpeta del proyecto"/>
+                                </WrapPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,10,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,14,0">
+                                    <TextBlock Text="Etiqueta del disco" FontWeight="SemiBold"/>
+                                    <TextBox x:Name="DataOnlyVolumeLabelText" Text="DVDRTOOL" Width="220" HorizontalAlignment="Left" Margin="0,5,0,0" MaxLength="32"/>
+                                </StackPanel>
+                                <Button x:Name="BurnDataOnlyButton" Grid.Column="1" Style="{StaticResource PrimaryButton}" Height="46" MinWidth="190" Margin="0" Click="BurnDataOnly_Click" Content="GRABAR DATOS CD/DVD" VerticalAlignment="Bottom"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- Crear CD Extra -->
+                <TabItem>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="16">
+                            <Border Background="#F8FAFC" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,12">
+                                <TextBlock Text="Orden recomendado:  1  Audio   →   2  Datos   →   3  Grabadora   →   4  Capacidad   →   5  Grabar" Foreground="#475569" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            </Border>
+
+                            <Grid MinWidth="600">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.55*" MinWidth="320"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="1*" MinWidth="280"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Columna izquierda: contenido -->
+                                <StackPanel Grid.Column="0">
+                                    <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="30" Height="30" CornerRadius="15" Background="#DBEAFE" VerticalAlignment="Top">
+                                                    <TextBlock Text="1" Foreground="#1D4ED8" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                    <TextBlock Text="Pistas de audio" FontSize="17" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="Agrega y ordena las pistas que se grabarán como CD Audio. La conversión necesaria se realiza automáticamente antes de grabar." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                    <StackPanel x:Name="ExtraCdTextPanel">
+                                                        <Grid Margin="0,10,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="10"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Artista (CD-TEXT)" Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,0,0,3"/>
+                                                                <TextBox x:Name="ExtraArtistText" MaxLength="80" ToolTip="Opcional. Artista global del CD Audio de la primera sesión."/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2">
+                                                                <TextBlock Text="Nombre del disco (CD-TEXT)" Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,0,0,3"/>
+                                                                <TextBox x:Name="ExtraAlbumText" MaxLength="80" ToolTip="Opcional. Título global del CD Audio de la primera sesión."/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                        <TextBlock Text="Las etiquetas CD-TEXT son opcionales y no cambian la sesión de datos del CD Extra." Foreground="#64748B" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <Grid Margin="0,10,0,0" Visibility="Collapsed">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Formato al mover a Datos:" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" Margin="0,0,8,0"/>
+                                                <ComboBox x:Name="DataAudioFormatCombo" Grid.Column="1" SelectedIndex="0" MinWidth="210" HorizontalAlignment="Left">
+                                                    <ComboBoxItem Content="Original (sin convertir)"/>
+                                                    <ComboBoxItem Content="MP3"/>
+                                                    <ComboBoxItem Content="AAC / M4A"/>
+                                                    <ComboBoxItem Content="WMA"/>
+                                                    <ComboBoxItem Content="Opus"/>
+                                                    <ComboBoxItem Content="OGG Vorbis"/>
+                                                    <ComboBoxItem Content="FLAC"/>
+                                                </ComboBox>
+                                            </Grid>
+                                            <TextBlock Visibility="Collapsed" Text="Original no necesita FFmpeg. Solo se requiere FFmpeg cuando eliges convertir a otro formato." Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap"/>
+
+                                            <Border Background="#F8FAFC" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="9" Margin="0,12,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" MinWidth="250"/>
+                                                        <ColumnDefinition Width="0"/>
+                                                        <ColumnDefinition Width="0"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="CD Audio (CD-DA)" FontWeight="SemiBold" Foreground="#0F172A"/>
+                                                        <TextBlock Text="Pistas que funcionan en un reproductor de CD normal." Foreground="{StaticResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,2,0,6"/>
+                                                        <ListBox x:Name="BurnAudioList" Height="190" HorizontalContentAlignment="Stretch"/>
+                                                        <WrapPanel Margin="0,7,0,0">
+                                                            <Button Style="{StaticResource PrimaryButton}" Padding="9,7" Click="AddBurnAudio_Click" Content="＋ Agregar"/>
+                                                            <Button Style="{StaticResource SecondaryButton}" Padding="9,7" Click="RemoveBurnAudio_Click" Content="Quitar"/>
+                                                        </WrapPanel>
+                                                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                            <Button Style="{StaticResource SecondaryButton}" Width="38" Padding="7" Click="MoveAudioUp_Click" Content="↑" ToolTip="Subir pista"/>
+                                                            <Button Style="{StaticResource SecondaryButton}" Width="38" Padding="7" Click="MoveAudioDown_Click" Content="↓" ToolTip="Bajar pista"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="7,0" Visibility="Collapsed">
+                                                        <Button Style="{StaticResource PrimaryButton}" Padding="7,8" Margin="0,0,0,7" Click="MoveAudioToMp3_Click" Content="→ Datos" ToolTip="Copia o convierte la pista seleccionada al formato elegido para la sesión de datos"/>
+                                                        <Button Style="{StaticResource SecondaryButton}" Padding="7,8" Click="MoveMp3ToAudio_Click" Content="← CD" ToolTip="Devuelve el archivo seleccionado a CD Audio"/>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="2" Visibility="Collapsed">
+                                                        <TextBlock Text="Audio / Datos" FontWeight="SemiBold" Foreground="#0F172A"/>
+                                                        <TextBlock Text="Ocupa MB en la sesión de datos; no consume minutos CD-DA. El formato puede conservarse sin convertir." Foreground="{StaticResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,2,0,6"/>
+                                                        <ListBox x:Name="BurnMp3List" Height="190" DisplayMemberPath="Display" HorizontalContentAlignment="Stretch"/>
+                                                        <Button Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left" Padding="9,7" Margin="0,7,0,0" Click="RemoveMp3Audio_Click" Content="Quitar de datos" ToolTip="Quita el archivo de audio de la sesión de datos sin modificar el original"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+
+                                            <WrapPanel Margin="0,8,0,0">
+                                                <Button Style="{StaticResource SecondaryButton}" Click="RemoveAllBurnAudio_Click" Content="Quitar todas las canciones" ToolTip="Vaciar CD Audio y Audio / Datos"/>
+                                                <Button x:Name="AutoFitMp3Button" Visibility="Collapsed" Style="{StaticResource SecondaryButton}" Click="AutoFitMp3_Click" Content="Ajustar automáticamente a Datos" ToolTip="Mueve pistas desde el final a la sesión de datos usando el formato elegido hasta que el proyecto quepa"/>
+                                            </WrapPanel>
+                                            <TextBlock x:Name="HybridAudioSummaryText" Visibility="Collapsed" Text="Modo híbrido: 0 pistas CD Audio · 0 archivos de audio en Datos." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+
+                                            <Expander x:Name="FfmpegAdvancedExpander" Margin="0,8,0,0" Header="Conversión de audio universal (FFmpeg)">
+                                                <StackPanel Margin="0,8,0,0">
+                                                    <TextBlock Text="FFmpeg es el conversor principal. Acepta cualquier formato de audio que FFmpeg pueda decodificar y lo normaliza automáticamente para CD Audio." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap"/>
+                                                    <Grid Margin="0,7,0,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox x:Name="FfmpegPathText" IsReadOnly="True" ToolTip="ffmpeg.exe permite convertir y remuestrear más formatos automáticamente"/>
+                                                        <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Padding="10,8" Click="BrowseFfmpeg_Click" Content="Examinar…" ToolTip="Seleccionar ffmpeg.exe"/>
+                                                        <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Padding="10,8" Click="ClearFfmpeg_Click" Content="×" ToolTip="No usar FFmpeg"/>
+                                                    </Grid>
+                                                    <WrapPanel Margin="0,7,0,0">
+                                                        <Button Style="{StaticResource SecondaryButton}" Padding="10,8" Margin="0" Click="InstallFfmpeg_Click" Content="↓ Instalar FFmpeg automáticamente"/>
+                                                    </WrapPanel>
+                                                    <TextBlock x:Name="AudioSupportText" Text="Detectando soporte de audio…" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" FontSize="11" Margin="0,7,0,0"/>
+                                                </StackPanel>
+                                            </Expander>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Style="{StaticResource CardBorder}">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="30" Height="30" CornerRadius="15" Background="#DBEAFE" VerticalAlignment="Top">
+                                                    <TextBlock Text="2" Foreground="#1D4ED8" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                    <TextBlock Text="Sesión de datos" FontSize="17" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="Agrega o quita archivos libremente. CDPLUS, PICTURES y AUDIO se crean por defecto; la carpeta AUDIO se gestiona desde la sección de audio." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <Grid Margin="0,12,0,7">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Agregar en:" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" Margin="0,0,8,0"/>
+                                                <ComboBox x:Name="DataTargetCombo" Grid.Column="1" MinHeight="34"/>
+                                            </Grid>
+
+                                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="9" Height="225">
+                                                <DataGrid x:Name="BurnDataGrid" IsReadOnly="True" SelectionMode="Single" AlternationCount="2" BorderThickness="0">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="Tipo" Binding="{Binding TypeText}" Width="145"/>
+                                                        <DataGridTextColumn Header="Ruta en el disco" Binding="{Binding RelativePath}" Width="*"/>
+                                                        <DataGridTextColumn Header="Tamaño" Binding="{Binding SizeText}" Width="100"/>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </Border>
+
+                                            <WrapPanel Margin="0,8,0,0">
+                                                <Button Style="{StaticResource PrimaryButton}" Click="AddDataFiles_Click" Content="＋ Archivos"/>
+                                                <Button Style="{StaticResource SecondaryButton}" Click="AddDataFolder_Click" Content="＋ Carpeta"/>
+                                                <Button Style="{StaticResource SecondaryButton}" Click="RemoveDataItem_Click" Content="Quitar"/>
+                                                <Button Style="{StaticResource SecondaryButton}" Click="ClearDataItems_Click" Content="Vaciar datos" ToolTip="Quita el contenido manual pero conserva CDPLUS, PICTURES y AUDIO gestionado desde Audio"/>
+                                                <Button Style="{StaticResource SecondaryButton}" Click="OpenDataProject_Click" Content="Abrir carpeta"/>
+                                                <Button Style="{StaticResource SecondaryButton}" Click="RefreshDataProject_Click" Content="↻ Actualizar" ToolTip="Actualizar la lista si modificaste la carpeta desde el Explorador"/>
+                                            </WrapPanel>
+                                            <TextBlock x:Name="DataProjectSummaryText" Text="CDPLUS, PICTURES y AUDIO listas." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Columna derecha: grabadora, capacidad y acción -->
+                                <StackPanel Grid.Column="2">
+                                    <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="30" Height="30" CornerRadius="15" Background="#DBEAFE" VerticalAlignment="Top">
+                                                    <TextBlock Text="3" Foreground="#1D4ED8" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                    <TextBlock Text="Grabadora" FontSize="17" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="Selecciona el dispositivo que usará cdrecord." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <TextBlock Text="Etiqueta del volumen" Foreground="{StaticResource MutedBrush}" Margin="0,12,0,4"/>
+                                            <TextBox x:Name="VolumeLabelText" Text="CD_EXTRA" MaxLength="32"/>
+
+                                            <TextBlock Text="Dispositivo" Foreground="{StaticResource MutedBrush}" Margin="0,10,0,4"/>
+                                            <ComboBox x:Name="CdrtoolsDeviceCombo" MinHeight="35" SelectionChanged="CdrtoolsDeviceCombo_SelectionChanged"/>
+                                            <Button Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left" Margin="0,7,0,0" Click="ScanCdrtools_Click" Content="↻ Buscar grabadoras"/>
+                                            <TextBlock x:Name="CdrtoolsStatusText" Text="Buscando cdrtools…" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" FontSize="11" Margin="0,7,0,0"/>
+
+                                            <Expander x:Name="CdrtoolsAdvancedExpander" Margin="0,9,0,0" Header="Motor cdrtools (portable)">
+                                                <StackPanel Margin="0,7,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                        <TextBox x:Name="CdrtoolsPathText" IsReadOnly="True" ToolTip="Debe contener cdrecord.exe y mkisofs.exe"/>
+                                                        <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Padding="10,8" Click="BrowseCdrtools_Click" Content="Examinar…"/>
+                                                    </Grid>
+                                                    <Button Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left" Margin="0,7,0,0" Padding="10,8" Click="InstallCdrtools_Click" Content="↓ Instalar motor automáticamente"/>
+                                                    <TextBlock Text="Descarga el paquete oficial, verifica SHA-256 y extrae cdrtools dentro de dvdrtool. No instala cdrtfe." Foreground="{StaticResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                                </StackPanel>
+                                            </Expander>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border x:Name="CapacityCard" Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="30" Height="30" CornerRadius="15" Background="#DBEAFE" VerticalAlignment="Top">
+                                                    <TextBlock Text="4" Foreground="#1D4ED8" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="10,0,8,0">
+                                                    <TextBlock Text="Capacidad" FontSize="17" FontWeight="SemiBold"/>
+                                                    <TextBlock x:Name="CapacityMediaText" Text="Medio: sin analizar" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <Border Grid.Column="2" Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="9" Padding="9,6" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="●" Foreground="#16A34A" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="Automática" Foreground="#166534" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center"/>
+                                                        <TextBlock Text=" · " Foreground="#86A89A" FontSize="11" VerticalAlignment="Center"/>
+                                                        <TextBlock x:Name="CapacityPercentText" Text="…" Foreground="#166534" FontWeight="Bold" FontSize="11" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+                                            <ProgressBar x:Name="CapacityBar" Height="14" Minimum="0" Maximum="100" Value="0" Margin="0,12,0,0" Foreground="#16A34A" Background="#E2E8F0"/>
+                                            <TextBlock x:Name="CapacityProjectText" Text="Proyecto: agrega CD Audio, Audio / Datos y otros datos para calcularlo." Foreground="#334155" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                            <Border Background="#EFF6FF" BorderBrush="#DBEAFE" BorderThickness="1" CornerRadius="8" Padding="9,7" Margin="0,7,0,0">
+                                                <TextBlock x:Name="CapacityRemainingText" Text="Falta para llenar: —" Foreground="#2563EB" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            </Border>
+                                            <TextBlock x:Name="CapacityStatusText" Text="La barra se actualiza automáticamente al cambiar pistas, datos o grabadora." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Style="{StaticResource CardBorder}">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="30" Height="30" CornerRadius="15" Background="#DBEAFE" VerticalAlignment="Top">
+                                                    <TextBlock Text="5" Foreground="#1D4ED8" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                    <TextBlock Text="Grabar CD Extra" FontSize="17" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="Graba CD Audio en la primera sesión y Audio / Datos más otros archivos en la segunda sesión." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Button x:Name="BurnButton" Style="{StaticResource PrimaryButton}" Height="52" Margin="0,14,0,0" Click="Burn_Click" Content="GRABAR CD EXTRA"/>
+                                            <Expander Header="Ver pasos de grabación" Margin="0,8,0,0">
+                                                <TextBlock Text="1. Normaliza solo las pistas de CD Audio.&#x0a;2. cdrecord graba el audio con -multi.&#x0a;3. cdrecord -msinfo obtiene la siguiente sesión.&#x0a;4. mkisofs crea la sesión de datos, incluido AUDIO.&#x0a;5. cdrecord graba la sesión de datos y finaliza." Foreground="#475569" FontSize="11" TextWrapping="Wrap" LineHeight="18" Margin="0,7,0,0"/>
+                                            </Expander>
+                                            <TextBlock Text="No suspendas ni apagues el equipo durante la grabación." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+
+                <!-- Películas Blu-ray -->
+                <TabItem>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="20">
+                            <Border CornerRadius="18" Padding="22" Margin="0,0,0,14"
+                                    Background="{StaticResource HeroGradientBrush}"
+                                    BorderBrush="#CFE1F8" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <Border Background="#DBEAFE" CornerRadius="18" Padding="9,4" HorizontalAlignment="Left">
+                                            <TextBlock Text="BLU-RAY VIDEO" Foreground="#0B5FD7" FontWeight="Bold" FontSize="10"/>
+                                        </Border>
+                                        <TextBlock Text="Grabar películas Blu-ray" FontSize="25" FontWeight="Bold" Margin="0,10,0,0"/>
+                                        <TextBlock Text="Usa una ISO existente o una carpeta BDMV. La carpeta se prepara automáticamente como UDF 2.50 antes de grabar."
+                                                   Foreground="#475569" FontSize="12" Margin="0,5,0,0" TextWrapping="Wrap" MaxWidth="720"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Background="#FFFFFF" BorderBrush="#D8E7F8" BorderThickness="1"
+                                            CornerRadius="16" Padding="16" Margin="18,0,0,0" VerticalAlignment="Center">
+                                        <StackPanel>
+                                            <TextBlock Text="25 / 50 GB" Foreground="#0B5FD7" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="BD-R / BD-R DL" Foreground="{StaticResource MutedBrush}" FontSize="10" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="1. Origen" FontSize="17" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Selecciona una ISO o la carpeta raíz que contiene BDMV."
+                                                       Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Background="#F2F6FA" CornerRadius="10" Padding="10,5" VerticalAlignment="Center">
+                                            <TextBlock x:Name="BluRaySourceTypeText" Text="SIN SELECCIÓN" FontWeight="SemiBold" FontSize="10" Foreground="#62748A"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <Grid Margin="0,12,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="BluRaySourcePathText" IsReadOnly="True" Text="Ningún origen seleccionado" VerticalContentAlignment="Center"/>
+                                        <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Click="SelectBluRayIso_Click" Content="Seleccionar ISO"/>
+                                        <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Click="SelectBluRayFolder_Click" Content="Seleccionar carpeta"/>
+                                        <Button Grid.Column="3" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Click="ClearBluRaySource_Click" Content="Quitar"/>
+                                    </Grid>
+
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock x:Name="BluRaySourceStatusText" Text="Selecciona una ISO o una carpeta Blu-ray con BDMV."
+                                                   Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="BluRaySourceSizeText" Grid.Column="1" Text="—"
+                                                   Foreground="#0B5FD7" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="2" Background="#EEF6FF" BorderBrush="#CFE3FF" BorderThickness="1"
+                                                CornerRadius="9" Padding="9,4" Margin="10,0,0,0">
+                                            <TextBlock x:Name="BluRayFitText" Text="SIN MEDIO" Foreground="#0B5FD7" FontSize="10" FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.15*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="0.85*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="2. Preparación" FontSize="17" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Medio para el Modo prueba" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,8,0,4"/>
+                                        <ComboBox x:Name="BluRaySimulationMediaCombo" SelectedIndex="0" SelectionChanged="BluRaySimulationMediaCombo_SelectionChanged">
+                                            <ComboBoxItem Content="BD-R / BD-RE 25 GB"/>
+                                            <ComboBoxItem Content="BD-R DL / BD-RE DL 50 GB"/>
+                                        </ComboBox>
+                                        <TextBlock Text="En una grabación real se comprueba automáticamente el Blu-ray insertado."
+                                                   Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,9,0,0" TextWrapping="Wrap"/>
+                                        <TextBlock Text="Etiqueta del disco" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,13,0,4"/>
+                                        <TextBox x:Name="BluRayVolumeNameTextBox" Text="BLURAY_VIDEO" MaxLength="32"/>
+                                        <TextBlock Text="Solo se aplica al grabar una carpeta BDMV; la ISO se conserva sin modificar."
+                                                   Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="2" Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="Estado Blu-ray" FontSize="17" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Estructura esperada" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,8,0,2"/>
+                                        <TextBlock Text="BDMV\index.bdmv" FontFamily="Consolas" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="CERTIFICATE es opcional." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,8,0,0"/>
+                                        <Border Background="#F5F9FF" BorderBrush="#DCEAFF" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,12,0,0">
+                                            <TextBlock Text="La carpeta se convierte temporalmente a UDF 2.50 con Windows. No se transcodifica el vídeo."
+                                                       Foreground="#334155" FontSize="10.5" TextWrapping="Wrap" LineHeight="17"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <Border Style="{StaticResource CardBorder}" Margin="0,12,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,0,14,0" VerticalAlignment="Center">
+                                        <TextBlock Text="3. Grabar" FontSize="17" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Con Modo prueba activo solo se calcula la capacidad; no se escribe ningún disco."
+                                                   Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <Button x:Name="BluRayBurnButton" Grid.Column="1" Style="{StaticResource PrimaryButton}"
+                                            Height="48" MinWidth="205" Margin="0" Click="BurnBluRay_Click" Content="GRABAR BLU-RAY"/>
+                                </Grid>
+                            </Border>
+
+                            <TextBlock Text="Usa estructuras o imágenes propias y sin protección. dvdrtool no extrae ni elimina protecciones de discos comerciales."
+                                       Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="3,10,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Opciones -->
+                <TabItem>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="20">
+                            <Border CornerRadius="18" Padding="20" Margin="0,0,0,14"
+                                    Background="{StaticResource HeroGradientBrush}"
+                                    BorderBrush="#CFE1F8" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Opciones de dvdrtool" FontSize="24" FontWeight="Bold"/>
+                                        <TextBlock Text="Personaliza la interfaz y prueba proyectos sin enviar órdenes de escritura a la grabadora."
+                                                   Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Background="#EAF3FF" BorderBrush="#C9E0FF" BorderThickness="1" CornerRadius="14" Padding="12,7" VerticalAlignment="Center">
+                                        <TextBlock x:Name="OptionsModeText" Text="MODO NORMAL" Foreground="#0B5FD7" FontWeight="Bold" FontSize="11"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="Grabación y seguridad" FontSize="17" FontWeight="SemiBold"/>
+                                            <TextBlock Text="El modo prueba no ejecuta cdrecord ni escribe en ningún disco."
+                                                       Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,12" TextWrapping="Wrap"/>
+                                            <CheckBox x:Name="SimulationModeCheck" Content="Modo prueba / simulación (no grabar)" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                            <CheckBox x:Name="ConfirmBeforeBurnCheck" Content="Pedir confirmación antes de una grabación real" IsChecked="True" Margin="0,0,0,12"/>
+                                            <TextBlock Text="Medio usado para estimaciones de simulación" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="SimulationMediaCombo" SelectedIndex="0">
+                                                <ComboBoxItem Content="CD-R 80 min / 700 MB"/>
+                                                <ComboBoxItem Content="DVD 4.7 GB"/>
+                                                <ComboBoxItem Content="DVD doble capa 8.5 GB (DVD±R DL)"/>
+                                            </ComboBox>
+                                            <Border Background="#FFF7E6" BorderBrush="#F5D18A" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,12,0,0">
+                                                <TextBlock Text="En simulación, Audio CD y CD Extra usan CD-R de 80 minutos. DVD 4.7/8.5 GB se usa para Datos CD/DVD. Blu-ray tiene su propio selector de 25/50 GB."
+                                                           Foreground="#8A5A00" FontSize="11" TextWrapping="Wrap"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Style="{StaticResource CardBorder}">
+                                        <StackPanel>
+                                            <TextBlock Text="Valores predeterminados" FontSize="17" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Velocidad de grabación" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,10,0,4"/>
+                                            <ComboBox x:Name="BurnSpeedCombo"
+                                                      IsEditable="True"
+                                                      Text="4x"
+                                                      MinHeight="32"
+                                                      ToolTip="Automática o escribe una velocidad, por ejemplo: 2, 4, 6, 8, 10, 12, 16, 20, 52">
+                                                <ComboBoxItem Content="Automática"/>
+                                                <ComboBoxItem Content="2x"/>
+                                                <ComboBoxItem Content="4x"/>
+                                                <ComboBoxItem Content="6x"/>
+                                                <ComboBoxItem Content="8x"/>
+                                                <ComboBoxItem Content="10x"/>
+                                                <ComboBoxItem Content="12x"/>
+                                                <ComboBoxItem Content="16x"/>
+                                                <ComboBoxItem Content="20x"/>
+                                                <ComboBoxItem Content="24x"/>
+                                                <ComboBoxItem Content="32x"/>
+                                                <ComboBoxItem Content="40x"/>
+                                                <ComboBoxItem Content="48x"/>
+                                                <ComboBoxItem Content="52x"/>
+                                            </ComboBox>
+                                            <TextBlock Text="Se usa en Audio CD, Datos, CD Extra y Blu-ray. dvdrtool comprueba la velocidad real antes de escribir."
+                                                       Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Pantalla al abrir dvdrtool" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,10,0,4"/>
+                                            <ComboBox x:Name="StartPageCombo" SelectedIndex="0">
+                                                <ComboBoxItem Content="Inicio"/>
+                                                <ComboBoxItem Content="Grabar Audio"/>
+                                                <ComboBoxItem Content="Datos CD/DVD"/>
+                                                <ComboBoxItem Content="Crear CD Extra"/>
+                                                <ComboBoxItem Content="Películas Blu-ray"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="Interfaz" FontSize="17" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Modo de interfaz" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,10,0,4"/>
+                                            <ComboBox x:Name="InterfaceModeCombo" SelectedIndex="0">
+                                                <ComboBoxItem Content="Básico"/>
+                                                <ComboBoxItem Content="Avanzado"/>
+                                            </ComboBox>
+                                            <CheckBox x:Name="ShowCdTextCheck" Content="Mostrar campos CD-TEXT (artista y nombre del disco)" IsChecked="True" Margin="0,12,0,0"/>
+                                            <CheckBox x:Name="ShowTechnicalLogCheck" Content="Mostrar Registro técnico en la barra lateral" IsChecked="True" Margin="0,9,0,0"/>
+                                            <TextBlock Text="Básico oculta los controles manuales de cdrtools y FFmpeg, pero ambos siguen funcionando automáticamente."
+                                                       Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Style="{StaticResource CardBorder}">
+                                        <StackPanel>
+                                            <TextBlock Text="Motor y herramientas" FontSize="17" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Motor de grabación · cdrtools portátil" Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,10,0,2"/>
+                                            <TextBlock x:Name="OptionsCdrtoolsText" Text="Comprobando…" TextWrapping="Wrap"/>
+                                            <TextBlock Text="FFmpeg" Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,10,0,2"/>
+                                            <TextBlock x:Name="OptionsFfmpegText" Text="Comprobando…" TextWrapping="Wrap"/>
+                                            <WrapPanel Margin="0,12,0,0">
+                                                <Button Style="{StaticResource SecondaryButton}" Click="InstallCdrtools_Click" Content="Instalar cdrtools"/>
+                                                <Button Style="{StaticResource SecondaryButton}" Click="InstallFfmpeg_Click" Content="Instalar FFmpeg"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Background="#FBFDFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="14" Padding="12" Margin="0,14,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Las preferencias se guardan para el próximo inicio de dvdrtool."
+                                               Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0"/>
+                                    <WrapPanel Grid.Column="1">
+                                        <Button Style="{StaticResource SecondaryButton}" Click="RestoreOptions_Click" Content="Restablecer"/>
+                                        <Button Style="{StaticResource PrimaryButton}" Click="SaveOptions_Click" Content="Aplicar y guardar"/>
+                                    </WrapPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Registro -->
+                <TabItem>
+                    <Grid Margin="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Style="{StaticResource CardBorder}" Padding="16" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Registro de actividad" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Mensajes de la aplicación y salida de cdrecord/mkisofs." Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="0" Click="ClearLog_Click" Content="Limpiar"/>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="0" CornerRadius="12">
+                            <TextBox x:Name="LogText" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12" TextWrapping="NoWrap" BorderThickness="0"/>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+            <!-- Barra de estado -->
+            <Border Grid.Row="2" Background="#FBFDFF" BorderBrush="#D6E0EC" BorderThickness="0,1,0,0" Padding="16,7">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="180"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" MinWidth="0">
+                        <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#16A34A" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="StatusText" Text="Listo" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <Button x:Name="CancelButton" Grid.Column="1" Style="{StaticResource SecondaryButton}" Padding="10,5" Margin="8,0,10,0" Visibility="Collapsed" Click="Cancel_Click" Content="Cancelar"/>
+                    <ProgressBar x:Name="MainProgress" Grid.Column="2" Height="8" Minimum="0" Maximum="100" Value="0" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}" Background="#E2E8F0"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

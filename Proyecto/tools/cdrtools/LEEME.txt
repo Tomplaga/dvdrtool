@@ -1,0 +1,11 @@
+Coloca aquí los binarios de cdrtools para usar dvdrtool en modo portable.
+
+Necesarios:
+- cdrecord.exe
+- mkisofs.exe
+
+Opcionales según tu paquete:
+- cdda2wav.exe
+- readcd.exe
+
+Si no están aquí, dvdrtool intentará localizar una instalación externa de cdrtools/cdrtfe como respaldo.

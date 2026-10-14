@@ -1,0 +1,15 @@
+dvdrtool puede usar los decodificadores de audio de una instalación completa de cdrtfe.
+Normalmente cdrtfe los instala en:
+
+C:\Program Files (x86)\cdrtfe\tools\sound\
+
+o
+C:\Program Files\cdrtfe\tools\sound\
+
+Herramientas reconocidas:
+- mpg123.exe : MP3
+- flac.exe   : FLAC
+- oggdec.exe : OGG/OGA
+- mac.exe    : APE (si la distribución lo incluye)
+
+No es necesario copiarlas aquí si dvdrtool apunta a la carpeta tools\cdrtools de esa misma instalación de cdrtfe.
